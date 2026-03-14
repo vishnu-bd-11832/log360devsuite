@@ -14,31 +14,15 @@ Coded by www.creative-tim.com
 */
 
 import { useState } from "react";
-
-// react-router-dom components
 import { Link } from "react-router-dom";
-
-// @mui material components
 import Card from "@mui/material/Card";
 import Switch from "@mui/material/Switch";
-import Grid from "@mui/material/Grid";
-import MuiLink from "@mui/material/Link";
-
-// @mui icons
-import FacebookIcon from "@mui/icons-material/Facebook";
-import GitHubIcon from "@mui/icons-material/GitHub";
-import GoogleIcon from "@mui/icons-material/Google";
-
-// Material Dashboard 2 React components
+import Divider from "@mui/material/Divider";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDInput from "components/MDInput";
 import MDButton from "components/MDButton";
-
-// Authentication layout components
 import BasicLayout from "layouts/authentication/components/BasicLayout";
-
-// Images
 import bgImage from "assets/images/bg-sign-in-basic.jpeg";
 
 function Basic() {
@@ -61,27 +45,36 @@ function Basic() {
           textAlign="center"
         >
           <MDTypography variant="h4" fontWeight="medium" color="white" mt={1}>
-            Sign in
+            Log360 Dev Suite
           </MDTypography>
-          <Grid container spacing={3} justifyContent="center" sx={{ mt: 1, mb: 2 }}>
-            <Grid item xs={2}>
-              <MDTypography component={MuiLink} href="#" variant="body1" color="white">
-                <FacebookIcon color="inherit" />
-              </MDTypography>
-            </Grid>
-            <Grid item xs={2}>
-              <MDTypography component={MuiLink} href="#" variant="body1" color="white">
-                <GitHubIcon color="inherit" />
-              </MDTypography>
-            </Grid>
-            <Grid item xs={2}>
-              <MDTypography component={MuiLink} href="#" variant="body1" color="white">
-                <GoogleIcon color="inherit" />
-              </MDTypography>
-            </Grid>
-          </Grid>
+          <MDTypography variant="body2" color="white" opacity={0.8} mt={0.5}>
+            ManageEngine Internal Developer Portal
+          </MDTypography>
         </MDBox>
-        <MDBox pt={4} pb={3} px={3}>
+        <MDBox pt={3} pb={3} px={3}>
+          <MDBox mb={2}>
+            <MDButton
+              variant="gradient"
+              fullWidth
+              sx={{
+                bgcolor: "#F05A28",
+                "&:hover": { bgcolor: "#d44e22" },
+                color: "#fff",
+                fontWeight: "bold",
+                fontSize: "0.875rem",
+                py: 1.25,
+              }}
+            >
+              Sign in with Zoho
+            </MDButton>
+          </MDBox>
+          <MDBox display="flex" alignItems="center" gap={1} my={2}>
+            <Divider sx={{ flex: 1 }} />
+            <MDTypography variant="caption" color="text">
+              or use email
+            </MDTypography>
+            <Divider sx={{ flex: 1 }} />
+          </MDBox>
           <MDBox component="form" role="form">
             <MDBox mb={2}>
               <MDInput type="email" label="Email" fullWidth />
@@ -108,7 +101,7 @@ function Basic() {
             </MDBox>
             <MDBox mt={3} mb={1} textAlign="center">
               <MDTypography variant="button" color="text">
-                Don&apos;t have an account?{" "}
+                Need access?{" "}
                 <MDTypography
                   component={Link}
                   to="/authentication/sign-up"
@@ -117,7 +110,7 @@ function Basic() {
                   fontWeight="medium"
                   textGradient
                 >
-                  Sign up
+                  Contact your admin
                 </MDTypography>
               </MDTypography>
             </MDBox>
