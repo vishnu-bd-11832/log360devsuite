@@ -22,6 +22,7 @@ const buildRoutes = require("./routes/builds");
 const connectorRoutes = require("./routes/connectors");
 const backupRoutes = require("./routes/backups");
 const teamRoutes = require("./routes/teams");
+const domainRoutes = require("./routes/domain");
 
 // Auth middleware
 const { verifyUserToken, verifyAgentToken } = require("./middleware/auth");
@@ -61,6 +62,9 @@ app.use("/api/backups", verifyUserToken, backupRoutes);
 
 // Product & log routes live under /api/machines/:machineId — already protected above
 app.use("/api/machines", verifyUserToken, productRoutes);
+
+// Domain discovery and remote deployment
+app.use("/api/domain", verifyUserToken, domainRoutes);
 
 // Agent-authenticated routes (use separate token)
 app.use("/api/agent", verifyAgentToken, agentRoutes);

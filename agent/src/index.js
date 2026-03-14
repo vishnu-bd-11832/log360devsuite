@@ -21,6 +21,8 @@ const productDetector = require("./lib/productDetector");
 const logReader = require("./lib/logReader");
 const installer = require("./lib/installer");
 const backupManager = require("./lib/backupManager");
+const domainDiscovery = require("./lib/domainDiscovery");
+const remoteDeployer = require("./lib/remoteDeployer");
 
 // ── Simple logger ─────────────────────────────────────────────────────────────
 
@@ -122,6 +124,16 @@ async function dispatchCommand(cmd) {
       status: "complete",
       logOutput: `${type === "__service_start__" ? "Started" : "Stopped"} ${cmd.product_name}`,
     });
+    return;
+  }
+
+  if (type === "__domain_discover__") {
+    await domainDiscovery.executeDiscovery(cmd, logger);
+    return;
+  }
+
+  if (type === "__remote_deploy__") {
+    await remoteDeployer.executeRemoteDeploy(cmd, logger);
     return;
   }
 

@@ -39,6 +39,7 @@ import Dashboard from "layouts/dashboard";
 import Machines from "layouts/machines";
 import Teams from "layouts/teams";
 import Agents from "layouts/agents";
+import DomainDeploy from "layouts/domain-deploy";
 import Products from "layouts/products";
 import Installations from "layouts/installations";
 import Builds from "layouts/builds";
@@ -86,6 +87,14 @@ const routes = [
     icon: <Icon fontSize="small">memory</Icon>,
     route: "/agents",
     component: <Agents />,
+  },
+  {
+    type: "collapse",
+    name: "Domain Deploy",
+    key: "domain-deploy",
+    icon: <Icon fontSize="small">domain</Icon>,
+    route: "/domain-deploy",
+    component: <DomainDeploy />,
   },
 
   // ── Products ──────────────────────────────────────────────────────────────
