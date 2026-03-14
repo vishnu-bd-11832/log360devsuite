@@ -45,10 +45,12 @@ import Builds from "layouts/builds";
 import Logs from "layouts/logs";
 import Backups from "layouts/backups";
 import SignIn from "layouts/authentication/sign-in";
+import ZohoCallback from "layouts/authentication/callback";
 
 import Icon from "@mui/material/Icon";
 
 const routes = [
+  // ── Overview ──────────────────────────────────────────────────────────────
   { type: "title", title: "Overview", key: "overview-title" },
   {
     type: "collapse",
@@ -58,6 +60,8 @@ const routes = [
     route: "/dashboard",
     component: <Dashboard />,
   },
+
+  // ── Infrastructure ────────────────────────────────────────────────────────
   { type: "title", title: "Infrastructure", key: "infra-title" },
   {
     type: "collapse",
@@ -83,6 +87,8 @@ const routes = [
     route: "/agents",
     component: <Agents />,
   },
+
+  // ── Products ──────────────────────────────────────────────────────────────
   { type: "title", title: "Products", key: "products-title" },
   {
     type: "collapse",
@@ -108,6 +114,8 @@ const routes = [
     route: "/builds",
     component: <Builds />,
   },
+
+  // ── Developer Tools ───────────────────────────────────────────────────────
   { type: "title", title: "Developer Tools", key: "devtools-title" },
   {
     type: "collapse",
@@ -125,14 +133,19 @@ const routes = [
     route: "/backups",
     component: <Backups />,
   },
-  { type: "divider", key: "divider-1" },
+
+  // ── Auth routes — not shown in the sidenav (no `type` property) ───────────
   {
-    type: "collapse",
-    name: "Sign In",
     key: "sign-in",
-    icon: <Icon fontSize="small">login</Icon>,
     route: "/authentication/sign-in",
     component: <SignIn />,
+    isPublic: true,
+  },
+  {
+    key: "zoho-callback",
+    route: "/authentication/callback",
+    component: <ZohoCallback />,
+    isPublic: true,
   },
 ];
 

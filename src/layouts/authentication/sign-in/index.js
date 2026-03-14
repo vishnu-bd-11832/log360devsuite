@@ -13,26 +13,21 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
-import { useState } from "react";
-import { Link } from "react-router-dom";
 import Card from "@mui/material/Card";
-import Switch from "@mui/material/Switch";
 import Divider from "@mui/material/Divider";
+import LockIcon from "@mui/icons-material/Lock";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
-import MDInput from "components/MDInput";
 import MDButton from "components/MDButton";
 import BasicLayout from "layouts/authentication/components/BasicLayout";
+import { initiateZohoLogin } from "services/zohoAuth";
 import bgImage from "assets/images/bg-sign-in-basic.jpeg";
 
-function Basic() {
-  const [rememberMe, setRememberMe] = useState(false);
-
-  const handleSetRememberMe = () => setRememberMe(!rememberMe);
-
+function SignIn() {
   return (
     <BasicLayout image={bgImage}>
       <Card>
+        {/* Header */}
         <MDBox
           variant="gradient"
           bgColor="info"
@@ -51,69 +46,36 @@ function Basic() {
             ManageEngine Internal Developer Portal
           </MDTypography>
         </MDBox>
-        <MDBox pt={3} pb={3} px={3}>
-          <MDBox mb={2}>
-            <MDButton
-              variant="gradient"
-              fullWidth
-              sx={{
-                bgcolor: "#F05A28",
-                "&:hover": { bgcolor: "#d44e22" },
-                color: "#fff",
-                fontWeight: "bold",
-                fontSize: "0.875rem",
-                py: 1.25,
-              }}
-            >
-              Sign in with Zoho
-            </MDButton>
-          </MDBox>
-          <MDBox display="flex" alignItems="center" gap={1} my={2}>
-            <Divider sx={{ flex: 1 }} />
-            <MDTypography variant="caption" color="text">
-              or use email
+
+        {/* Body */}
+        <MDBox pt={4} pb={4} px={3} textAlign="center">
+          {/* Zoho OAuth button */}
+          <MDButton
+            variant="contained"
+            fullWidth
+            onClick={initiateZohoLogin}
+            sx={{
+              backgroundColor: "#F05A28",
+              "&:hover": { backgroundColor: "#d44e22" },
+              color: "#fff",
+              fontWeight: "bold",
+              fontSize: "0.9rem",
+              py: 1.5,
+              textTransform: "none",
+            }}
+          >
+            Sign in with Zoho
+          </MDButton>
+
+          <Divider sx={{ my: 2.5 }} />
+
+          {/* Access restriction notice */}
+          <MDBox display="flex" alignItems="flex-start" gap={1}>
+            <LockIcon sx={{ fontSize: 18, mt: 0.25, color: "text.secondary" }} />
+            <MDTypography variant="caption" color="text" textAlign="left">
+              Access is restricted to members of <strong>wsm-info@zohocorp.com</strong>. Sign in
+              with your Zoho corporate account. If you need access, contact your team admin.
             </MDTypography>
-            <Divider sx={{ flex: 1 }} />
-          </MDBox>
-          <MDBox component="form" role="form">
-            <MDBox mb={2}>
-              <MDInput type="email" label="Email" fullWidth />
-            </MDBox>
-            <MDBox mb={2}>
-              <MDInput type="password" label="Password" fullWidth />
-            </MDBox>
-            <MDBox display="flex" alignItems="center" ml={-1}>
-              <Switch checked={rememberMe} onChange={handleSetRememberMe} />
-              <MDTypography
-                variant="button"
-                fontWeight="regular"
-                color="text"
-                onClick={handleSetRememberMe}
-                sx={{ cursor: "pointer", userSelect: "none", ml: -1 }}
-              >
-                &nbsp;&nbsp;Remember me
-              </MDTypography>
-            </MDBox>
-            <MDBox mt={4} mb={1}>
-              <MDButton variant="gradient" color="info" fullWidth>
-                sign in
-              </MDButton>
-            </MDBox>
-            <MDBox mt={3} mb={1} textAlign="center">
-              <MDTypography variant="button" color="text">
-                Need access?{" "}
-                <MDTypography
-                  component={Link}
-                  to="/authentication/sign-up"
-                  variant="button"
-                  color="info"
-                  fontWeight="medium"
-                  textGradient
-                >
-                  Contact your admin
-                </MDTypography>
-              </MDTypography>
-            </MDBox>
           </MDBox>
         </MDBox>
       </Card>
@@ -121,4 +83,4 @@ function Basic() {
   );
 }
 
-export default Basic;
+export default SignIn;
