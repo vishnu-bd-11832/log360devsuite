@@ -10,11 +10,14 @@
  *  4. On success, call saveSession(); on failure show Access Denied
  *
  * Required environment variables (see .env.example):
- *  REACT_APP_ZOHO_CLIENT_ID       — OAuth client ID from Zoho API Console
- *  REACT_APP_ZOHO_REDIRECT_URI    — must match the URI registered in Zoho API Console
+ *  REACT_APP_ZOHO_CLIENT_ID       — OAuth client ID from Zoho API Console (IN DC)
+ *                                   Create at https://api-console.zoho.in/
+ *  REACT_APP_ZOHO_REDIRECT_URI    — must match the URI registered in Zoho API Console (IN DC)
  *  REACT_APP_ALLOWED_EMAILS       — (optional) comma-separated list of allowed emails.
  *                                   If omitted, all @zohocorp.com users are allowed.
  *                                   Set this to enforce the wsm-info group allowlist.
+ *
+ * Data Centre: Indian DC (accounts.zoho.in / api-console.zoho.in)
  *
  * NOTE: For stronger group-membership enforcement, validate the email against the
  * Zoho Directory API from a Catalyst cloud function and return a signed session
@@ -27,7 +30,7 @@ const REDIRECT_URI =
   process.env.REACT_APP_ZOHO_REDIRECT_URI ||
   (typeof window !== "undefined" ? `${window.location.origin}/authentication/callback` : "");
 
-const ZOHO_ACCOUNTS_BASE = "https://accounts.zoho.com";
+const ZOHO_ACCOUNTS_BASE = "https://accounts.zoho.in"; // Indian DC
 const REQUIRED_DOMAIN = "zohocorp.com";
 
 // Comma-separated allowlist — populate with wsm-info@zohocorp.com members.

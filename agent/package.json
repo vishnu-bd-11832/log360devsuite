@@ -1,0 +1,29 @@
+{
+  "name": "log360-devsuite-agent",
+  "version": "1.0.0",
+  "description": "Log360 Dev Suite Agent — cross-platform (Windows/Linux)",
+  "main": "src/index.js",
+  "bin": {
+    "log360-agent": "src/index.js"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "build:win": "pkg src/index.js --targets node18-win-x64 --output dist/log360-agent-win.exe",
+    "build:linux": "pkg src/index.js --targets node18-linux-x64 --output dist/log360-agent-linux.bin",
+    "build:all": "npm run build:win && npm run build:linux"
+  },
+  "pkg": {
+    "assets": ["src/**/*"],
+    "targets": ["node18-win-x64", "node18-linux-x64"]
+  },
+  "dependencies": {
+    "node-fetch": "2.7.0",
+    "uuid": "9.0.0"
+  },
+  "devDependencies": {
+    "pkg": "5.8.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

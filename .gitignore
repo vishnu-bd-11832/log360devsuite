@@ -4,6 +4,11 @@
 /node_modules
 .DS_Store
 
+# agent + function dependencies
+/agent/node_modules
+/agent/dist
+/functions/*/node_modules
+
 # testing
 /coverage
 
