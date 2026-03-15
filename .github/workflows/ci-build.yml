@@ -1,0 +1,363 @@
+# ============================================================
+#  Log360 Dev Suite — CI/CD Build Pipeline
+#
+#  Triggers:
+#    push     → main, master, or any copilot/** branch
+#    tag push → v*.*.* (also triggers the release job)
+#    PR       → main or master
+#    manual   → workflow_dispatch
+#
+#  Jobs:
+#    build-static    React SPA → log360-static-site.zip
+#    build-functions Cloud function bundle → log360-functions.zip
+#    export-schema   DataStore schema → catalyst-db-schema.json
+#    build-agent     pkg cross-compile → Windows .exe + Linux .bin
+#                    dpkg-deb         → log360-devsuite-agent_*.deb
+#                    makensis         → Log360AgentSetup-*-win-x64.exe
+#    release         Attach all artifacts to a GitHub Release (tag only)
+# ============================================================
+
+name: CI — Build & Package
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - "copilot/**"
+    tags:
+      - "v*.*.*"
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: write   # needed to create releases and upload assets
+
+env:
+  NODE_VERSION: "18"
+  AGENT_VERSION: "1.0.0"   # bumped manually or overridden by tag name
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Job 1 — React static site
+# ─────────────────────────────────────────────────────────────────────────────
+jobs:
+  build-static:
+    name: "Static Site (React → ZIP)"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install frontend dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Build React app
+        run: npm run build
+        env:
+          # CI=false prevents react-scripts from treating ESLint warnings as errors
+          CI: "false"
+          # Placeholder values — real values are injected at Catalyst deploy time
+          REACT_APP_CATALYST_API_URL: "/api"
+          REACT_APP_ZOHO_CLIENT_ID: "placeholder"
+          REACT_APP_ZOHO_REDIRECT_URI: "placeholder"
+
+      - name: Create static site ZIP
+        run: |
+          cd build
+          zip -r ../log360-static-site.zip . -x "*.DS_Store"
+          cd ..
+          echo "Static site ZIP:"
+          du -sh log360-static-site.zip
+
+      - name: Upload static site artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: log360-static-site
+          path: log360-static-site.zip
+          retention-days: 30
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Job 2 — Cloud function bundle
+# ─────────────────────────────────────────────────────────────────────────────
+  build-functions:
+    name: "Functions Bundle (log360-api → ZIP)"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install production dependencies
+        working-directory: functions/log360-api
+        run: npm ci --omit=dev
+
+      - name: Create functions ZIP
+        run: |
+          zip -r log360-functions.zip functions/log360-api \
+            --exclude "*/node_modules/.cache/*" \
+            --exclude "*/.DS_Store"
+          echo "Functions ZIP:"
+          du -sh log360-functions.zip
+
+      - name: Upload functions artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: log360-functions
+          path: log360-functions.zip
+          retention-days: 30
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Job 3 — Export DataStore schema
+# ─────────────────────────────────────────────────────────────────────────────
+  export-schema:
+    name: "DB Schema (catalyst.config.json → JSON)"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract DataStore schema
+        run: |
+          node - <<'EOF'
+          const cfg = require('./catalyst.config.json');
+          const schema = {
+            project:      cfg.project_name,
+            domain:       cfg.project_domain,
+            dc:           cfg.dc,
+            generated_at: new Date().toISOString(),
+            tables:       cfg.datastore.tables,
+            client:       cfg.client.map(({ app_name, type, stack }) => ({ app_name, type, stack })),
+            functions:    cfg.functions.map(({ function_name, type, memory, timeout, lang_runtime }) =>
+                            ({ function_name, type, memory, timeout, lang_runtime })),
+          };
+          require('fs').writeFileSync(
+            'catalyst-db-schema.json',
+            JSON.stringify(schema, null, 2),
+            'utf8'
+          );
+          console.log(`Exported ${schema.tables.length} tables:`);
+          schema.tables.forEach(t => console.log(`  - ${t.table_name} (${t.columns.length} columns)`));
+          EOF
+
+      - name: Show schema summary
+        run: cat catalyst-db-schema.json
+
+      - name: Upload schema artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: catalyst-db-schema
+          path: catalyst-db-schema.json
+          retention-days: 30
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Job 4 — Agent binaries + installers
+#   Builds everything on ubuntu-latest:
+#     • Linux  binary  → agent/dist/log360-agent-linux.bin   (native)
+#     • Windows binary → agent/dist/log360-agent-win.exe     (cross-compiled via pkg)
+#     • Linux  package → agent/installer/linux/*.deb          (dpkg-deb)
+#     • Windows setup  → agent/installer/windows/Log360AgentSetup-*.exe (makensis)
+# ─────────────────────────────────────────────────────────────────────────────
+  build-agent:
+    name: "Agent Binaries + Installers"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      # ── Resolve version (tag overrides env default) ──────────────────
+      - name: Resolve agent version
+        id: ver
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            VERSION="${{ github.ref_name }}"
+            VERSION="${VERSION#v}"
+          else
+            VERSION="${{ env.AGENT_VERSION }}"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Agent version: $VERSION"
+
+      # ── Install agent dependencies ───────────────────────────────────
+      - name: Install agent dependencies
+        working-directory: agent
+        run: npm ci
+
+      # ── Build Linux binary (native x64) ─────────────────────────────
+      - name: Build Linux binary
+        working-directory: agent
+        run: |
+          mkdir -p dist
+          npx pkg src/index.js \
+            --targets node18-linux-x64 \
+            --output dist/log360-agent-linux.bin \
+            --compress GZip
+          chmod +x dist/log360-agent-linux.bin
+          echo "Linux binary:"
+          du -sh dist/log360-agent-linux.bin
+
+      # ── Build Windows binary (cross-compile) ─────────────────────────
+      - name: Build Windows binary (cross-compile)
+        working-directory: agent
+        run: |
+          npx pkg src/index.js \
+            --targets node18-win-x64 \
+            --output dist/log360-agent-win.exe \
+            --compress GZip
+          echo "Windows binary:"
+          du -sh dist/log360-agent-win.exe
+
+      # ── Build Linux .deb package ─────────────────────────────────────
+      - name: Install dpkg-deb
+        run: sudo apt-get install -y dpkg
+
+      - name: Build .deb package
+        run: |
+          AGENT_VERSION="${{ steps.ver.outputs.version }}" \
+          bash agent/installer/linux/build-deb.sh
+
+      - name: List Linux artifacts
+        run: |
+          echo "=== Linux build artifacts ==="
+          ls -lh agent/dist/log360-agent-linux.bin
+          ls -lh agent/installer/linux/*.deb 2>/dev/null || echo "(no .deb found)"
+
+      # ── Build Windows NSIS installer ─────────────────────────────────
+      - name: Install NSIS
+        run: sudo apt-get install -y nsis
+
+      - name: Build NSIS installer
+        run: |
+          AGENT_VERSION="${{ steps.ver.outputs.version }}" \
+          bash agent/installer/windows/build-nsis.sh
+
+      - name: List Windows artifacts
+        run: |
+          echo "=== Windows build artifacts ==="
+          ls -lh agent/dist/log360-agent-win.exe
+          ls -lh agent/installer/windows/Log360AgentSetup-*.exe 2>/dev/null || echo "(no NSIS .exe found)"
+
+      # ── Upload all agent artifacts ────────────────────────────────────
+      - name: Upload Linux binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: log360-agent-linux-bin
+          path: agent/dist/log360-agent-linux.bin
+          retention-days: 30
+
+      - name: Upload Linux .deb package
+        uses: actions/upload-artifact@v4
+        with:
+          name: log360-agent-linux-deb
+          path: agent/installer/linux/log360-devsuite-agent_*.deb
+          retention-days: 30
+
+      - name: Upload Windows binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: log360-agent-windows-bin
+          path: agent/dist/log360-agent-win.exe
+          retention-days: 30
+
+      - name: Upload Windows NSIS installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: log360-agent-windows-installer
+          path: agent/installer/windows/Log360AgentSetup-*.exe
+          retention-days: 30
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Job 5 — Build summary (runs on every push/PR)
+# ─────────────────────────────────────────────────────────────────────────────
+  build-summary:
+    name: "Build Summary"
+    runs-on: ubuntu-latest
+    needs:
+      - build-static
+      - build-functions
+      - export-schema
+      - build-agent
+    if: always()
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: all-artifacts
+
+      - name: Print artifact summary
+        run: |
+          echo "## Build Artifacts" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Artifact | File | Size |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|---|" >> "$GITHUB_STEP_SUMMARY"
+          find all-artifacts -type f | sort | while read f; do
+            NAME=$(basename "$(dirname "$f")")
+            FILE=$(basename "$f")
+            SIZE=$(du -sh "$f" | cut -f1)
+            echo "| $NAME | \`$FILE\` | $SIZE |" >> "$GITHUB_STEP_SUMMARY"
+          done
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Job 6 — GitHub Release (tag push only)
+# ─────────────────────────────────────────────────────────────────────────────
+  release:
+    name: "GitHub Release"
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs:
+      - build-static
+      - build-functions
+      - export-schema
+      - build-agent
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts
+
+      - name: List release files
+        run: find release-artifacts -type f | sort
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Log360 Dev Suite ${{ github.ref_name }}"
+          generate_release_notes: true
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-rc') || contains(github.ref_name, '-beta') || contains(github.ref_name, '-alpha') }}
+          files: |
+            release-artifacts/log360-static-site/log360-static-site.zip
+            release-artifacts/log360-functions/log360-functions.zip
+            release-artifacts/catalyst-db-schema/catalyst-db-schema.json
+            release-artifacts/log360-agent-linux-bin/log360-agent-linux.bin
+            release-artifacts/log360-agent-linux-deb/log360-devsuite-agent_*.deb
+            release-artifacts/log360-agent-windows-bin/log360-agent-win.exe
+            release-artifacts/log360-agent-windows-installer/Log360AgentSetup-*.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

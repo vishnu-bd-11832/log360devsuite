@@ -1,0 +1,21 @@
+#!/bin/sh
+# prerm — pre-removal script for log360-devsuite-agent
+set -e
+
+case "$1" in
+    remove|upgrade|deconfigure)
+        # ── Stop and disable the systemd service ─────────────────────────
+        if command -v systemctl >/dev/null 2>&1; then
+            systemctl stop    log360-agent.service  || true
+            systemctl disable log360-agent.service  || true
+        fi
+        ;;
+    failed-upgrade)
+        ;;
+    *)
+        echo "prerm called with unknown argument '$1'" >&2
+        exit 1
+        ;;
+esac
+
+exit 0

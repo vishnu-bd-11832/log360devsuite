@@ -50,28 +50,29 @@ ShowUninstDetails show
 !include "nsDialogs.nsh"
 !include "LogicLib.nsh"
 !include "FileFunc.nsh"
-!include "StrFunc.nsh"
-
-${StrTrimNewLines}
+!insertmacro GetOptions
 
 ; ── Modern UI settings ────────────────────────────────────────────────────────
 !define MUI_ABORTWARNING
-!define MUI_ICON            "..\..\assets\installer-icon.ico"
-!define MUI_UNICON          "..\..\assets\installer-icon.ico"
-!define MUI_HEADERIMAGE
-!define MUI_HEADERIMAGE_BITMAP "..\..\assets\installer-header.bmp"
-!define MUI_WELCOMEFINISHPAGE_BITMAP "..\..\assets\installer-welcome.bmp"
+
+; Artwork — optional assets, gracefully skipped when not present
+; (CI builds without artwork still produce a valid functional installer)
+!if /FileExists "..\..\assets\installer-icon.ico"
+  !define MUI_ICON   "..\..\assets\installer-icon.ico"
+  !define MUI_UNICON "..\..\assets\installer-icon.ico"
+!endif
+!if /FileExists "..\..\assets\installer-header.bmp"
+  !define MUI_HEADERIMAGE
+  !define MUI_HEADERIMAGE_BITMAP "..\..\assets\installer-header.bmp"
+!endif
+!if /FileExists "..\..\assets\installer-welcome.bmp"
+  !define MUI_WELCOMEFINISHPAGE_BITMAP "..\..\assets\installer-welcome.bmp"
+!endif
+
 !define MUI_FINISHPAGE_RUN "$INSTDIR\${AGENT_EXE}"
 !define MUI_FINISHPAGE_RUN_TEXT "Start Log360 Agent service now"
 !define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\README.md"
 !define MUI_FINISHPAGE_SHOWREADME_TEXT "View README"
-
-; Fallback if artwork assets are missing (graceful degradation)
-!macro _IncludeArt ASSET
-  !if /FileExists "..\..\assets\${ASSET}"
-    !define MUI_HEADERIMAGE
-  !endif
-!macroend
 
 ; ── Variables ─────────────────────────────────────────────────────────────────
 Var Dialog
@@ -159,12 +160,9 @@ FunctionEnd
 
 ; ── .onInit — parse silent-install command line ───────────────────────────────
 Function .onInit
-  ; Parse /APIURL= and /TOKEN= from command line
+  ; Parse /APIURL= and /TOKEN= from command line (GetOptions returns clean values)
   ${GetOptions} $CMDLINE "/APIURL=" $ApiUrlValue
   ${GetOptions} $CMDLINE "/TOKEN="  $TokenValue
-  ; Remove surrounding quotes if present
-  ${StrTrimNewLines} $ApiUrlValue $ApiUrlValue
-  ${StrTrimNewLines} $TokenValue  $TokenValue
 FunctionEnd
 
 ; ── Helper macro to write config file ────────────────────────────────────────

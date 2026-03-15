@@ -103,12 +103,13 @@ $computers | ConvertTo-Json -Compress
 async function checkReachability(machines) {
   if (!IS_WINDOWS || machines.length === 0) return machines;
 
-  // Build a comma-separated list of targets (name or IP)
+  // Encode target list as base64 JSON to prevent PowerShell injection via
+  // hostnames that contain special characters (quotes, backticks, etc.)
   const targets = machines.map((m) => m.fqdn || m.name).filter(Boolean);
-  const targetJson = JSON.stringify(targets);
+  const targetsB64 = Buffer.from(JSON.stringify(targets), "utf8").toString("base64");
 
   const script = `
-$targets = '${targetJson.replace(/'/g, "''")}'  | ConvertFrom-Json
+$targets = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${targetsB64}')) | ConvertFrom-Json
 $results = $targets | ForEach-Object {
   $ok = Test-Connection $_ -Count 1 -Quiet -ErrorAction SilentlyContinue
   [PSCustomObject]@{ Target = $_; Reachable = $ok }

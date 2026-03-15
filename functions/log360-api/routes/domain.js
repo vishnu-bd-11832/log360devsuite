@@ -88,8 +88,7 @@ router.post("/discover", async (req, res) => {
 router.get("/discover/:discoveryId", async (req, res) => {
   const state = await cacheGet(req.catalyst, `discover:${req.params.discoveryId}`);
   if (!state) {
-    // Also check if the command task still exists in Installations
-    return res.status(404).json({ error: "Discovery job not found or expired" });
+    return res.status(404).json({ error: "Discovery job not found or expired (24 h TTL)" });
   }
   res.json(state);
 });

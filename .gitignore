@@ -9,6 +9,15 @@
 /agent/dist
 /functions/*/node_modules
 
+# agent installer build artifacts (produced by CI)
+/agent/installer/linux/*.deb
+/agent/installer/windows/Log360AgentSetup-*.exe
+/agent/installer/windows/*-build.nsi
+/agent/LICENSE
+
+# CI-generated files (not meant to be committed)
+catalyst-db-schema.json
+
 # testing
 /coverage
 

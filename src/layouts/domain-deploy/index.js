@@ -335,7 +335,7 @@ function DomainDeploy() {
       setDiscoveryError(err.message);
       setPhase("config");
     }
-  }, [gatewayId, domainName, useServiceAccount, domainUser, domainPassword]);
+  }, [gatewayId, domainName, useServiceAccount, domainUser]);
 
   // ── Deploy handler ────────────────────────────────────────────────────────
   const handleDeploy = useCallback(() => {

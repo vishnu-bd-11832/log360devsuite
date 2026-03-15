@@ -1,0 +1,17 @@
+Package: log360-devsuite-agent
+Version: 1.0.0
+Architecture: amd64
+Maintainer: ManageEngine <support@manageengine.com>
+Installed-Size: 50000
+Depends: systemd
+Section: utils
+Priority: optional
+Homepage: https://github.com/vishnu-bd-11832/log360devsuite
+Description: Log360 Dev Suite remote management agent
+ Cross-platform agent that connects managed machines to the Log360 Dev Suite
+ portal. Provides heartbeat reporting, process monitoring, ManageEngine product
+ detection, silent installer execution, log streaming, and backup management.
+ .
+ Configuration file: /etc/log360-agent/agent.json
+ Log file:           /var/log/log360-agent.log
+ Service name:       log360-agent (systemd)
