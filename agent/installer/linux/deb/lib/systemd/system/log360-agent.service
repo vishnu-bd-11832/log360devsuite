@@ -1,0 +1,22 @@
+[Unit]
+Description=Log360 Dev Suite Agent
+Documentation=https://github.com/vishnu-bd-11832/log360devsuite
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/log360-agent
+Restart=on-failure
+RestartSec=10
+StandardOutput=append:/var/log/log360-agent.log
+StandardError=append:/var/log/log360-agent.log
+SyslogIdentifier=log360-agent
+User=root
+# Configuration is read from /etc/log360-agent/agent.json
+# Override individual values with environment directives below:
+# Environment=LOG360_API_URL=https://...
+# Environment=LOG360_AGENT_TOKEN=...
+
+[Install]
+WantedBy=multi-user.target

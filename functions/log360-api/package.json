@@ -1,0 +1,15 @@
+{
+  "name": "log360-api",
+  "version": "1.0.0",
+  "description": "Log360 Dev Suite — Catalyst Advanced IO Cloud Function",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "4.18.2",
+    "zcatalyst-sdk-node": "3.3.0",
+    "cors": "2.8.5",
+    "uuid": "9.0.0"
+  }
+}

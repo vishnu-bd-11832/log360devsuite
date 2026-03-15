@@ -1,19 +1,5 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
 import { useState, useEffect, useMemo } from "react";
+import PropTypes from "prop-types";
 
 // react-router components
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
@@ -49,11 +35,30 @@ import routes from "routes";
 // Material Dashboard 2 React contexts
 import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "context";
 
+// Auth context
+import { AuthProvider, useAuth } from "context/authContext";
+
 // Images
 import brandWhite from "assets/images/logo-ct.png";
 import brandDark from "assets/images/logo-ct-dark.png";
 
-export default function App() {
+/**
+ * ProtectedRoute — renders children only when the user is authenticated.
+ * While the session is hydrating from sessionStorage, renders nothing to avoid
+ * a flash of the sign-in page for already-authenticated users.
+ */
+function ProtectedRoute({ children }) {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (!user) return <Navigate to="/authentication/sign-in" replace />;
+  return children;
+}
+
+ProtectedRoute.propTypes = {
+  children: PropTypes.node.isRequired,
+};
+
+function AppContent() {
   const [controller, dispatch] = useMaterialUIController();
   const {
     miniSidenav,
@@ -75,7 +80,6 @@ export default function App() {
       key: "rtl",
       stylisPlugins: [rtlPlugin],
     });
-
     setRtlCache(cacheRtl);
   }, []);
 
@@ -111,15 +115,23 @@ export default function App() {
 
   const getRoutes = (allRoutes) =>
     allRoutes.map((route) => {
-      if (route.collapse) {
-        return getRoutes(route.collapse);
-      }
+      if (route.collapse) return getRoutes(route.collapse);
+      if (!route.route) return null;
 
-      if (route.route) {
+      // Public routes (sign-in, OAuth callback) — rendered without auth guard
+      if (route.isPublic) {
         return <Route exact path={route.route} element={route.component} key={route.key} />;
       }
 
-      return null;
+      // All other routes are protected — redirect to sign-in if unauthenticated
+      return (
+        <Route
+          exact
+          path={route.route}
+          element={<ProtectedRoute>{route.component}</ProtectedRoute>}
+          key={route.key}
+        />
+      );
     });
 
   const configsButton = (
@@ -155,7 +167,7 @@ export default function App() {
             <Sidenav
               color={sidenavColor}
               brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
-              brandName="Material Dashboard 2"
+              brandName="Log360 Dev Suite"
               routes={routes}
               onMouseEnter={handleOnMouseEnter}
               onMouseLeave={handleOnMouseLeave}
@@ -179,7 +191,7 @@ export default function App() {
           <Sidenav
             color={sidenavColor}
             brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
-            brandName="Material Dashboard 2"
+            brandName="Log360 Dev Suite"
             routes={routes}
             onMouseEnter={handleOnMouseEnter}
             onMouseLeave={handleOnMouseLeave}
@@ -194,5 +206,13 @@ export default function App() {
         <Route path="*" element={<Navigate to="/dashboard" />} />
       </Routes>
     </ThemeProvider>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }

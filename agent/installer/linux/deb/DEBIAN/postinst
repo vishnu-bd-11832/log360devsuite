@@ -1,0 +1,41 @@
+#!/bin/sh
+# postinst — post-installation script for log360-devsuite-agent
+set -e
+
+case "$1" in
+    configure)
+        # ── Create config directory if it doesn't exist ──────────────────
+        mkdir -p /etc/log360-agent
+
+        # Copy example config if no config file exists yet
+        if [ ! -f /etc/log360-agent/agent.json ]; then
+            cp /etc/log360-agent/agent.json.example /etc/log360-agent/agent.json
+            echo "Log360 Agent: example config copied to /etc/log360-agent/agent.json"
+            echo "             Edit this file and set apiUrl and agentToken before use."
+        fi
+
+        # ── Ensure log file exists with correct permissions ───────────────
+        touch /var/log/log360-agent.log
+        chmod 640 /var/log/log360-agent.log
+
+        # ── Enable and start the systemd service ─────────────────────────
+        if command -v systemctl >/dev/null 2>&1 && systemctl is-system-running --quiet 2>/dev/null; then
+            systemctl daemon-reload
+            systemctl enable log360-agent.service || true
+            systemctl start log360-agent.service  || true
+            echo "Log360 Agent: service enabled and started."
+            echo "             Status: systemctl status log360-agent"
+        else
+            echo "Log360 Agent: systemd not available."
+            echo "             Start manually: /usr/bin/log360-agent"
+        fi
+        ;;
+    abort-upgrade|abort-remove|abort-deconfigure)
+        ;;
+    *)
+        echo "postinst called with unknown argument '$1'" >&2
+        exit 1
+        ;;
+esac
+
+exit 0

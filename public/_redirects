@@ -1,0 +1,4 @@
+# Zoho Catalyst Static Hosting — SPA fallback routing
+# All requests that don't match a static file are served index.html
+# so that React Router can handle client-side navigation.
+/*    /index.html   200

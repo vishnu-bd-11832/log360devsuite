@@ -1,0 +1,63 @@
+{
+  "project_name": "log360devsuite",
+  "project_domain": "log360devsuite.catalystappsail.in",
+  "dc": "IN",
+  "client": [
+    {
+      "app_name": "log360devsuite-web",
+      "type": "static",
+      "build_command": "npm run build",
+      "build_path": "build",
+      "public_folder": "build",
+      "stack": "nodejs18",
+      "env_variables": {
+        "REACT_APP_ZOHO_CLIENT_ID": "",
+        "REACT_APP_ZOHO_REDIRECT_URI": "",
+        "REACT_APP_ALLOWED_EMAILS": "",
+        "REACT_APP_CATALYST_API_URL": ""
+      }
+    }
+  ],
+  "functions": [
+    {
+      "function_name": "log360-api",
+      "type": "Advanced IO",
+      "memory": 512,
+      "timeout": 60,
+      "lang_runtime": "nodejs18",
+      "entry_file": "functions/log360-api/index.js"
+    }
+  ],
+  "datastore": {
+    "tables": [
+      {
+        "table_name": "Agents",
+        "columns": ["machine_id", "hostname", "os", "platform", "agent_version", "status", "ip_address", "last_seen", "token_hash", "owner_email", "team_id", "capabilities"]
+      },
+      {
+        "table_name": "Machines",
+        "columns": ["machine_id", "name", "type", "os", "owner_email", "team_id", "ip_address", "agent_version", "status", "created_at"]
+      },
+      {
+        "table_name": "Products",
+        "columns": ["machine_id", "product_name", "product_key", "install_path", "status", "port", "version", "detected_at"]
+      },
+      {
+        "table_name": "Installations",
+        "columns": ["install_id", "machine_id", "product_name", "build_number", "file_url", "file_type", "status", "log_output", "started_at", "completed_at"]
+      },
+      {
+        "table_name": "Builds",
+        "columns": ["build_id", "product_name", "build_number", "download_url", "file_type", "platform", "connector_id", "iss_path", "is_active", "created_at"]
+      },
+      {
+        "table_name": "Connectors",
+        "columns": ["connector_id", "name", "type", "base_url", "auth_header", "is_active", "created_at"]
+      },
+      {
+        "table_name": "Backups",
+        "columns": ["backup_id", "machine_id", "product_name", "type", "size_mb", "local_path", "workdrive_url", "status", "created_at"]
+      }
+    ]
+  }
+}

@@ -13,29 +13,76 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
-// @mui material components
 import Grid from "@mui/material/Grid";
-
-// Material Dashboard 2 React components
 import MDBox from "components/MDBox";
-
-// Material Dashboard 2 React example components
+import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import ReportsBarChart from "examples/Charts/BarCharts/ReportsBarChart";
 import ReportsLineChart from "examples/Charts/LineCharts/ReportsLineChart";
 import ComplexStatisticsCard from "examples/Cards/StatisticsCards/ComplexStatisticsCard";
+import DataTable from "examples/Tables/DataTable";
+import Card from "@mui/material/Card";
+import Chip from "@mui/material/Chip";
 
-// Data
 import reportsBarChartData from "layouts/dashboard/data/reportsBarChartData";
 import reportsLineChartData from "layouts/dashboard/data/reportsLineChartData";
 
-// Dashboard components
-import Projects from "layouts/dashboard/components/Projects";
-import OrdersOverview from "layouts/dashboard/components/OrdersOverview";
+const recentActivityColumns = [
+  { Header: "time", accessor: "time", width: "15%" },
+  { Header: "machine", accessor: "machine", width: "20%" },
+  { Header: "action", accessor: "action", width: "35%" },
+  { Header: "status", accessor: "status", width: "15%" },
+  { Header: "user", accessor: "user", width: "15%" },
+];
+
+const recentActivityRows = [
+  {
+    time: "10:42 AM",
+    machine: "dev-vm-01",
+    action: "Installed Log360 build 12345",
+    status: <Chip label="Success" color="success" size="small" />,
+    user: "john.doe",
+  },
+  {
+    time: "10:15 AM",
+    machine: "win-test-03",
+    action: "DB Backup — EventLog Analyzer",
+    status: <Chip label="Success" color="success" size="small" />,
+    user: "jane.smith",
+  },
+  {
+    time: "09:58 AM",
+    machine: "linux-qa-02",
+    action: "Agent connected",
+    status: <Chip label="Online" color="info" size="small" />,
+    user: "system",
+  },
+  {
+    time: "09:30 AM",
+    machine: "win-dev-05",
+    action: "Installed ADAudit Plus build 7890",
+    status: <Chip label="Failed" color="error" size="small" />,
+    user: "alice.k",
+  },
+  {
+    time: "09:05 AM",
+    machine: "dev-vm-02",
+    action: "Log read — Log360 UEBA",
+    status: <Chip label="Success" color="success" size="small" />,
+    user: "bob.t",
+  },
+  {
+    time: "08:47 AM",
+    machine: "win-test-01",
+    action: "Uploaded backup to WorkDrive",
+    status: <Chip label="Success" color="success" size="small" />,
+    user: "jane.smith",
+  },
+];
 
 function Dashboard() {
-  const { sales, tasks } = reportsLineChartData;
+  const { agentUptime, products } = reportsLineChartData;
 
   return (
     <DashboardLayout>
@@ -46,28 +93,21 @@ function Dashboard() {
             <MDBox mb={1.5}>
               <ComplexStatisticsCard
                 color="dark"
-                icon="weekend"
-                title="Bookings"
-                count={281}
-                percentage={{
-                  color: "success",
-                  amount: "+55%",
-                  label: "than lask week",
-                }}
+                icon="computer"
+                title="Total Machines"
+                count={24}
+                percentage={{ color: "success", amount: "+2", label: "added this week" }}
               />
             </MDBox>
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
             <MDBox mb={1.5}>
               <ComplexStatisticsCard
-                icon="leaderboard"
-                title="Today's Users"
-                count="2,300"
-                percentage={{
-                  color: "success",
-                  amount: "+3%",
-                  label: "than last month",
-                }}
+                color="info"
+                icon="memory"
+                title="Active Agents"
+                count={18}
+                percentage={{ color: "success", amount: "75%", label: "of machines online" }}
               />
             </MDBox>
           </Grid>
@@ -75,42 +115,35 @@ function Dashboard() {
             <MDBox mb={1.5}>
               <ComplexStatisticsCard
                 color="success"
-                icon="store"
-                title="Revenue"
-                count="34k"
-                percentage={{
-                  color: "success",
-                  amount: "+1%",
-                  label: "than yesterday",
-                }}
+                icon="apps"
+                title="Products Running"
+                count={45}
+                percentage={{ color: "success", amount: "+3", label: "since yesterday" }}
               />
             </MDBox>
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
             <MDBox mb={1.5}>
               <ComplexStatisticsCard
-                color="primary"
-                icon="person_add"
-                title="Followers"
-                count="+91"
-                percentage={{
-                  color: "success",
-                  amount: "",
-                  label: "Just updated",
-                }}
+                color="warning"
+                icon="pending_actions"
+                title="Pending Installs"
+                count={7}
+                percentage={{ color: "error", amount: "+2", label: "queued today" }}
               />
             </MDBox>
           </Grid>
         </Grid>
+
         <MDBox mt={4.5}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={6} lg={4}>
               <MDBox mb={3}>
                 <ReportsBarChart
                   color="info"
-                  title="website views"
-                  description="Last Campaign Performance"
-                  date="campaign sent 2 days ago"
+                  title="Installation Activity"
+                  description="Number of installs in last 7 days"
+                  date="updated today"
                   chart={reportsBarChartData}
                 />
               </MDBox>
@@ -119,14 +152,10 @@ function Dashboard() {
               <MDBox mb={3}>
                 <ReportsLineChart
                   color="success"
-                  title="daily sales"
-                  description={
-                    <>
-                      (<strong>+15%</strong>) increase in today sales.
-                    </>
-                  }
-                  date="updated 4 min ago"
-                  chart={sales}
+                  title="Agent Uptime"
+                  description="Agents online per day (last 7 days)"
+                  date="updated 5 min ago"
+                  chart={agentUptime}
                 />
               </MDBox>
             </Grid>
@@ -134,24 +163,31 @@ function Dashboard() {
               <MDBox mb={3}>
                 <ReportsLineChart
                   color="dark"
-                  title="completed tasks"
-                  description="Last Campaign Performance"
+                  title="Products Running"
+                  description="ME products active per day"
                   date="just updated"
-                  chart={tasks}
+                  chart={products}
                 />
               </MDBox>
             </Grid>
           </Grid>
         </MDBox>
-        <MDBox>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6} lg={8}>
-              <Projects />
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <OrdersOverview />
-            </Grid>
-          </Grid>
+
+        <MDBox mt={2}>
+          <Card>
+            <MDBox p={3}>
+              <MDTypography variant="h6" gutterBottom>
+                Recent Activity
+              </MDTypography>
+              <DataTable
+                table={{ columns: recentActivityColumns, rows: recentActivityRows }}
+                isSorted={false}
+                entriesPerPage={false}
+                showTotalEntries={false}
+                noEndBorder
+              />
+            </MDBox>
+          </Card>
         </MDBox>
       </MDBox>
     </DashboardLayout>

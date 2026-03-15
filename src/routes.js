@@ -35,20 +35,24 @@ Coded by www.creative-tim.com
   10. The `component` key is used to store the component of its route.
 */
 
-// Material Dashboard 2 React layouts
 import Dashboard from "layouts/dashboard";
-import Tables from "layouts/tables";
-import Billing from "layouts/billing";
-import RTL from "layouts/rtl";
-import Notifications from "layouts/notifications";
-import Profile from "layouts/profile";
+import Machines from "layouts/machines";
+import Teams from "layouts/teams";
+import Agents from "layouts/agents";
+import DomainDeploy from "layouts/domain-deploy";
+import Products from "layouts/products";
+import Installations from "layouts/installations";
+import Builds from "layouts/builds";
+import Logs from "layouts/logs";
+import Backups from "layouts/backups";
 import SignIn from "layouts/authentication/sign-in";
-import SignUp from "layouts/authentication/sign-up";
+import ZohoCallback from "layouts/authentication/callback";
 
-// @mui icons
 import Icon from "@mui/material/Icon";
 
 const routes = [
+  // ── Overview ──────────────────────────────────────────────────────────────
+  { type: "title", title: "Overview", key: "overview-title" },
   {
     type: "collapse",
     name: "Dashboard",
@@ -57,61 +61,100 @@ const routes = [
     route: "/dashboard",
     component: <Dashboard />,
   },
+
+  // ── Infrastructure ────────────────────────────────────────────────────────
+  { type: "title", title: "Infrastructure", key: "infra-title" },
   {
     type: "collapse",
-    name: "Tables",
-    key: "tables",
-    icon: <Icon fontSize="small">table_view</Icon>,
-    route: "/tables",
-    component: <Tables />,
+    name: "Machines",
+    key: "machines",
+    icon: <Icon fontSize="small">computer</Icon>,
+    route: "/machines",
+    component: <Machines />,
   },
   {
     type: "collapse",
-    name: "Billing",
-    key: "billing",
-    icon: <Icon fontSize="small">receipt_long</Icon>,
-    route: "/billing",
-    component: <Billing />,
+    name: "Teams",
+    key: "teams",
+    icon: <Icon fontSize="small">groups</Icon>,
+    route: "/teams",
+    component: <Teams />,
   },
   {
     type: "collapse",
-    name: "RTL",
-    key: "rtl",
-    icon: <Icon fontSize="small">format_textdirection_r_to_l</Icon>,
-    route: "/rtl",
-    component: <RTL />,
+    name: "Agents",
+    key: "agents",
+    icon: <Icon fontSize="small">memory</Icon>,
+    route: "/agents",
+    component: <Agents />,
   },
   {
     type: "collapse",
-    name: "Notifications",
-    key: "notifications",
-    icon: <Icon fontSize="small">notifications</Icon>,
-    route: "/notifications",
-    component: <Notifications />,
+    name: "Domain Deploy",
+    key: "domain-deploy",
+    icon: <Icon fontSize="small">domain</Icon>,
+    route: "/domain-deploy",
+    component: <DomainDeploy />,
+  },
+
+  // ── Products ──────────────────────────────────────────────────────────────
+  { type: "title", title: "Products", key: "products-title" },
+  {
+    type: "collapse",
+    name: "ME Products",
+    key: "products",
+    icon: <Icon fontSize="small">apps</Icon>,
+    route: "/products",
+    component: <Products />,
   },
   {
     type: "collapse",
-    name: "Profile",
-    key: "profile",
-    icon: <Icon fontSize="small">person</Icon>,
-    route: "/profile",
-    component: <Profile />,
+    name: "Installations",
+    key: "installations",
+    icon: <Icon fontSize="small">install_desktop</Icon>,
+    route: "/installations",
+    component: <Installations />,
   },
   {
     type: "collapse",
-    name: "Sign In",
+    name: "Builds",
+    key: "builds",
+    icon: <Icon fontSize="small">build</Icon>,
+    route: "/builds",
+    component: <Builds />,
+  },
+
+  // ── Developer Tools ───────────────────────────────────────────────────────
+  { type: "title", title: "Developer Tools", key: "devtools-title" },
+  {
+    type: "collapse",
+    name: "Logs",
+    key: "logs",
+    icon: <Icon fontSize="small">article</Icon>,
+    route: "/logs",
+    component: <Logs />,
+  },
+  {
+    type: "collapse",
+    name: "Backups",
+    key: "backups",
+    icon: <Icon fontSize="small">backup</Icon>,
+    route: "/backups",
+    component: <Backups />,
+  },
+
+  // ── Auth routes — not shown in the sidenav (no `type` property) ───────────
+  {
     key: "sign-in",
-    icon: <Icon fontSize="small">login</Icon>,
     route: "/authentication/sign-in",
     component: <SignIn />,
+    isPublic: true,
   },
   {
-    type: "collapse",
-    name: "Sign Up",
-    key: "sign-up",
-    icon: <Icon fontSize="small">assignment</Icon>,
-    route: "/authentication/sign-up",
-    component: <SignUp />,
+    key: "zoho-callback",
+    route: "/authentication/callback",
+    component: <ZohoCallback />,
+    isPublic: true,
   },
 ];
 

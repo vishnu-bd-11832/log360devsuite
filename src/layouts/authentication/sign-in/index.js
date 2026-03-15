@@ -13,42 +13,21 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
-import { useState } from "react";
-
-// react-router-dom components
-import { Link } from "react-router-dom";
-
-// @mui material components
 import Card from "@mui/material/Card";
-import Switch from "@mui/material/Switch";
-import Grid from "@mui/material/Grid";
-import MuiLink from "@mui/material/Link";
-
-// @mui icons
-import FacebookIcon from "@mui/icons-material/Facebook";
-import GitHubIcon from "@mui/icons-material/GitHub";
-import GoogleIcon from "@mui/icons-material/Google";
-
-// Material Dashboard 2 React components
+import Divider from "@mui/material/Divider";
+import LockIcon from "@mui/icons-material/Lock";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
-import MDInput from "components/MDInput";
 import MDButton from "components/MDButton";
-
-// Authentication layout components
 import BasicLayout from "layouts/authentication/components/BasicLayout";
-
-// Images
+import { initiateZohoLogin } from "services/zohoAuth";
 import bgImage from "assets/images/bg-sign-in-basic.jpeg";
 
-function Basic() {
-  const [rememberMe, setRememberMe] = useState(false);
-
-  const handleSetRememberMe = () => setRememberMe(!rememberMe);
-
+function SignIn() {
   return (
     <BasicLayout image={bgImage}>
       <Card>
+        {/* Header */}
         <MDBox
           variant="gradient"
           bgColor="info"
@@ -61,66 +40,42 @@ function Basic() {
           textAlign="center"
         >
           <MDTypography variant="h4" fontWeight="medium" color="white" mt={1}>
-            Sign in
+            Log360 Dev Suite
           </MDTypography>
-          <Grid container spacing={3} justifyContent="center" sx={{ mt: 1, mb: 2 }}>
-            <Grid item xs={2}>
-              <MDTypography component={MuiLink} href="#" variant="body1" color="white">
-                <FacebookIcon color="inherit" />
-              </MDTypography>
-            </Grid>
-            <Grid item xs={2}>
-              <MDTypography component={MuiLink} href="#" variant="body1" color="white">
-                <GitHubIcon color="inherit" />
-              </MDTypography>
-            </Grid>
-            <Grid item xs={2}>
-              <MDTypography component={MuiLink} href="#" variant="body1" color="white">
-                <GoogleIcon color="inherit" />
-              </MDTypography>
-            </Grid>
-          </Grid>
+          <MDTypography variant="body2" color="white" opacity={0.8} mt={0.5}>
+            ManageEngine Internal Developer Portal
+          </MDTypography>
         </MDBox>
-        <MDBox pt={4} pb={3} px={3}>
-          <MDBox component="form" role="form">
-            <MDBox mb={2}>
-              <MDInput type="email" label="Email" fullWidth />
-            </MDBox>
-            <MDBox mb={2}>
-              <MDInput type="password" label="Password" fullWidth />
-            </MDBox>
-            <MDBox display="flex" alignItems="center" ml={-1}>
-              <Switch checked={rememberMe} onChange={handleSetRememberMe} />
-              <MDTypography
-                variant="button"
-                fontWeight="regular"
-                color="text"
-                onClick={handleSetRememberMe}
-                sx={{ cursor: "pointer", userSelect: "none", ml: -1 }}
-              >
-                &nbsp;&nbsp;Remember me
-              </MDTypography>
-            </MDBox>
-            <MDBox mt={4} mb={1}>
-              <MDButton variant="gradient" color="info" fullWidth>
-                sign in
-              </MDButton>
-            </MDBox>
-            <MDBox mt={3} mb={1} textAlign="center">
-              <MDTypography variant="button" color="text">
-                Don&apos;t have an account?{" "}
-                <MDTypography
-                  component={Link}
-                  to="/authentication/sign-up"
-                  variant="button"
-                  color="info"
-                  fontWeight="medium"
-                  textGradient
-                >
-                  Sign up
-                </MDTypography>
-              </MDTypography>
-            </MDBox>
+
+        {/* Body */}
+        <MDBox pt={4} pb={4} px={3} textAlign="center">
+          {/* Zoho OAuth button */}
+          <MDButton
+            variant="contained"
+            fullWidth
+            onClick={initiateZohoLogin}
+            sx={{
+              backgroundColor: "#F05A28",
+              "&:hover": { backgroundColor: "#d44e22" },
+              color: "#fff",
+              fontWeight: "bold",
+              fontSize: "0.9rem",
+              py: 1.5,
+              textTransform: "none",
+            }}
+          >
+            Sign in with Zoho
+          </MDButton>
+
+          <Divider sx={{ my: 2.5 }} />
+
+          {/* Access restriction notice */}
+          <MDBox display="flex" alignItems="flex-start" gap={1}>
+            <LockIcon sx={{ fontSize: 18, mt: 0.25, color: "text.secondary" }} />
+            <MDTypography variant="caption" color="text" textAlign="left">
+              Access is restricted to members of <strong>wsm-info@zohocorp.com</strong>. Sign in
+              with your Zoho corporate account. If you need access, contact your team admin.
+            </MDTypography>
           </MDBox>
         </MDBox>
       </Card>
@@ -128,4 +83,4 @@ function Basic() {
   );
 }
 
-export default Basic;
+export default SignIn;
