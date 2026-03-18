@@ -3,6 +3,9 @@
 **Data Centre: Indian DC (IN)**
 All URLs use `.zoho.in` / `.catalystappsail.in` domains.
 
+> **Looking for the step-by-step AppSail deployment guide?**
+> See the [README → Deploy to Zoho Catalyst AppSail](./README.md#deploy-to-zoho-catalyst-appsail--step-by-step).
+
 ---
 
 ## Table of Contents
@@ -14,7 +17,8 @@ All URLs use `.zoho.in` / `.catalystappsail.in` domains.
 6. [Static Hosting — React Frontend](#6-static-hosting--react-frontend)
 7. [Environment Variables](#7-environment-variables)
 8. [Deploy](#8-deploy)
-9. [API Reference](#9-api-reference)
+9. [Troubleshooting](#9-troubleshooting)
+10. [API Reference](#10-api-reference)
 
 ---
 
@@ -38,6 +42,20 @@ All URLs use `.zoho.in` / `.catalystappsail.in` domains.
    | Client Name | Log360 Dev Suite |
    | Homepage URL | `https://<project-id>-<env-id>.catalystappsail.in` |
    | Authorized Redirect URIs | `https://<project-id>-<env-id>.catalystappsail.in/authentication/callback` |
+
+   > **How to get your AppSail URL:** Open the
+   > [Catalyst Console](https://console.catalyst.zoho.com) → select your
+   > project → **Project Settings → Domain**. The URL shown there
+   > (e.g. `https://73005000001234-60005000001234.catalystappsail.in`) is the one
+   > you enter here. You can also find it in the CLI output after running
+   > `catalyst deploy`. See the
+   > [README → Finding Your AppSail URL](./README.md#finding-your-appsail-url)
+   > for all the options.
+   >
+   > **Yes — the AppSail URL is the redirect URL.** Append
+   > `/authentication/callback` to the base URL because that is the route the
+   > React app listens on for the OAuth callback.
+
 4. Click **Create** — note the **Client ID** (you will not receive a secret for implicit grant)
 5. Required OAuth scope: `AaaServer.profile.Read`
 
@@ -246,7 +264,43 @@ https://<project-id>-<env-id>.catalystappsail.in
 
 ---
 
-## 9. API Reference
+## 9. Troubleshooting
+
+### Catalyst CLI not found
+
+```bash
+npm install -g zcatalyst-cli
+catalyst --version
+```
+
+### `catalyst deploy` fails with "project not initialized"
+
+Run `catalyst init` from the repo root and select your existing Catalyst project
+in the Indian DC.
+
+### OAuth redirect mismatch
+
+Make sure the **Authorized Redirect URIs** in
+[api-console.zoho.in](https://api-console.zoho.in) exactly match the URL your
+app is served from, including the protocol (`https://`) and path
+(`/authentication/callback`).
+
+### Cloud function returns 502 / timeout
+
+- Check that `functions/log360-api/node_modules` is present (run `npm install`
+  inside `functions/log360-api/`).
+- Increase the function timeout in the Catalyst Console if your DataStore
+  queries are slow.
+
+### Frontend shows a blank page after deploy
+
+- Confirm that `public/_redirects` exists with the SPA fallback rule.
+- Verify the `REACT_APP_CATALYST_API_URL` environment variable points to the
+  correct AppSail URL.
+
+---
+
+## 10. API Reference
 
 All routes are prefixed with `/api` and served by the `log360-api` Catalyst function.
 
