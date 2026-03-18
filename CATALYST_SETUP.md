@@ -42,6 +42,20 @@ All URLs use `.zoho.in` / `.catalystappsail.in` domains.
    | Client Name | Log360 Dev Suite |
    | Homepage URL | `https://<project-id>-<env-id>.catalystappsail.in` |
    | Authorized Redirect URIs | `https://<project-id>-<env-id>.catalystappsail.in/authentication/callback` |
+
+   > **How to get your AppSail URL:** Open the
+   > [Catalyst Console](https://console.catalyst.zoho.com) → select your
+   > project → **Project Settings → Domain**. The URL shown there
+   > (e.g. `https://73005000001234-60005000001234.catalystappsail.in`) is the one
+   > you enter here. You can also find it in the CLI output after running
+   > `catalyst deploy`. See the
+   > [README → Finding Your AppSail URL](./README.md#finding-your-appsail-url)
+   > for all the options.
+   >
+   > **Yes — the AppSail URL is the redirect URL.** Append
+   > `/authentication/callback` to the base URL because that is the route the
+   > React app listens on for the OAuth callback.
+
 4. Click **Create** — note the **Client ID** (you will not receive a secret for implicit grant)
 5. Required OAuth scope: `AaaServer.profile.Read`
 

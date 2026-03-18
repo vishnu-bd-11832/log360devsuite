@@ -45,10 +45,16 @@ A browser window will open. Log in with your **Zoho** account and grant access.
 
 ### Step 3 — Create a Zoho OAuth Client
 
+> **You need your AppSail hosted URL for this step.** If you have not deployed
+> yet, skip to Step 4 → 5 → 10 first, note the URL printed by `catalyst deploy`,
+> then come back here. Alternatively, find the URL in the
+> [Catalyst Console](#finding-your-appsail-url) before deploying.
+
 1. Open **<https://api-console.zoho.in>** (Indian DC).
 2. Click **Add Client → Non-based Applications** (implicit grant — suitable for
    single-page applications).
-3. Fill in the form:
+3. Fill in the form using your AppSail hosted URL (see
+   [Finding Your AppSail URL](#finding-your-appsail-url) below):
 
    | Field | Value |
    |-------|-------|
@@ -56,8 +62,10 @@ A browser window will open. Log in with your **Zoho** account and grant access.
    | Homepage URL | `https://<project-id>-<env-id>.catalystappsail.in` |
    | Authorized Redirect URIs | `https://<project-id>-<env-id>.catalystappsail.in/authentication/callback` |
 
-   > **Tip:** You will get the exact `<project-id>-<env-id>` URL after your
-   > first deployment in Step 8. You can update these URIs later.
+   > **Yes — the AppSail URL is the redirect URL.** Zoho will redirect the
+   > browser back to this address after authentication. Append
+   > `/authentication/callback` to the base URL because that is the route the
+   > React app listens on.
 
 4. Click **Create** and note the **Client ID**.
 5. Required OAuth scope: `AaaServer.profile.Read`.
@@ -308,10 +316,60 @@ After a successful deployment the CLI will print your live URL:
 https://<project-id>-<env-id>.catalystappsail.in
 ```
 
+### Finding Your AppSail URL
+
+The hosted URL is what you use as the **redirect URL** when creating the Zoho
+OAuth client (Step 3). There are three ways to obtain it:
+
+#### Option A — From the Catalyst Console (before or after deploy)
+
+1. Open **<https://console.catalyst.zoho.com>** and select your project.
+2. Go to **Project Settings → Domain** (or **Hosting → Static Sites**).
+3. Your AppSail URL is shown as:
+
+   ```
+   https://<project-id>-<env-id>.catalystappsail.in
+   ```
+
+   For example: `https://73005000001234-60005000001234.catalystappsail.in`
+
+#### Option B — From the CLI after deploying
+
+After you run `catalyst deploy`, the CLI prints:
+
+```
+Deployment completed.
+Static site URL: https://73005000001234-60005000001234.catalystappsail.in
+```
+
+Copy that URL.
+
+#### Option C — From `catalyst.config.json`
+
+The `project_domain` field in `catalyst.config.json` contains the domain:
+
+```json
+{
+  "project_domain": "log360devsuite.catalystappsail.in"
+}
+```
+
+> **Using the URL as the OAuth redirect URI:**
+> Append `/authentication/callback` to the base URL. For example:
+>
+> | Purpose | URL |
+> |---------|-----|
+> | Homepage URL | `https://73005000001234-60005000001234.catalystappsail.in` |
+> | Redirect URI | `https://73005000001234-60005000001234.catalystappsail.in/authentication/callback` |
+>
+> These are the values you enter in [Zoho API Console](https://api-console.zoho.in)
+> when creating the OAuth client.
+
 ### Step 11 — Update OAuth Redirect URIs
 
-Now that you have the live URL, go back to **<https://api-console.zoho.in>** and
-make sure both fields match:
+Now that you have the live URL (see
+[Finding Your AppSail URL](#finding-your-appsail-url)), go back to
+**<https://api-console.zoho.in>** and make sure both fields match:
 
 | Field | Value |
 |-------|-------|
